@@ -8,8 +8,9 @@
 
 #include <functional>
 #include <vector>
-#include "AbstractSignalHandler.h"
+#include "AbstractSystemInterrupter.h"
 #include "to_string_helper.h"
+#include <tr1/memory>
 
 
 class AbstractCallable{
@@ -17,15 +18,10 @@ public:
     virtual void run() = 0;
     virtual std::string to_string() const = 0;
     virtual bool has_result() const = 0;
-    virtual void set_sig_handler(AbstractSignalHandler * handler) = 0;
+    virtual void set_sig_handler(std::shared_ptr<AbstractSystemInterrupter> handler) = 0;
+    virtual ~AbstractCallable() = default;
 };
 
-
-class ThreadFinishedUnexpected: public std::exception{
-    const char * what() const noexcept override{
-        return "Thread was finished unexpectedly";
-    }
-};
 
 
 class ThreadNotReady: public std::exception{
@@ -48,7 +44,7 @@ private:
     bool _has_result = false;
     bool _sighandler_set = false;
     std::string _result_string;
-    AbstractSignalHandler * _sighandler;
+    std::shared_ptr<AbstractSystemInterrupter> _sighandler;
 public:
     explicit MultipleCallable() {
         this->_callables = std::vector<AbstractCallable *>();
@@ -79,17 +75,28 @@ public:
     }
 
     bool has_result() const override {
-        return false;
+        return this->_has_result && this->_finished;
     }
 
-    void set_sig_handler(AbstractSignalHandler * handler) override{
+    void set_sig_handler(std::shared_ptr<AbstractSystemInterrupter> handler) override{
         this->_sighandler = handler;
         this->_sighandler_set = true;
+        for (auto & callable: this->_callables)
+            callable->set_sig_handler(handler);
     }
 
     void add_single_callable(AbstractCallable * runner) {
         runner->set_sig_handler(this->_sighandler);
         this->_callables.push_back(runner);
+    }
+
+    ~MultipleCallable() override{
+        std::cout<<"DESTRUCTOR CALLED"<<std::endl;
+        while(this->_callables.size() > 0){
+            auto item = this->_callables.back();
+            this->_callables.pop_back();
+            delete item;
+        }
     }
 };
 
@@ -115,7 +122,7 @@ class Callable: public AbstractCallable{
         bool _finished = false;
         bool _has_result = false;
         bool _sighandler_set = false;
-        AbstractSignalHandler * _sighandler;
+        std::shared_ptr<AbstractSystemInterrupter> _sighandler;
         // here we create basic seq
         // which is sequence with int templates
         // it would be filled further
@@ -155,8 +162,9 @@ class Callable: public AbstractCallable{
             this->_function = function;
             this->_params = std::make_tuple(params...);
         }
-
-        void set_sig_handler(AbstractSignalHandler * handler) override{
+        ~Callable() override{
+        }
+        void set_sig_handler(std::shared_ptr<AbstractSystemInterrupter>  handler) override{
             this->_sighandler = handler;
             this->_sighandler_set = true;
         }
@@ -166,8 +174,8 @@ class Callable: public AbstractCallable{
                 throw RunWithNoSighandler();
             this->_result = this->call_with_nargs(typename gens<sizeof...(args)>::type());
             this->_finished = true;
-            this->_has_result = true;
             if(this->_result_checker(this->_result)){
+                this->_has_result = true;
                 this->_sighandler->handle_success();
             }
         }

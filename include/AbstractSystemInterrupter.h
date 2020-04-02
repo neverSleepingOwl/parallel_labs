@@ -3,7 +3,7 @@
 
 #endif //MULTYTHREADING_ABSTRACTSIGHANDLER_H
 
-class AbstractSignalHandler{
+class AbstractSystemInterrupter{
 /*
  * Base class for all thread finished handlers
  * Inheritors must write to pipe/socket/throw signals

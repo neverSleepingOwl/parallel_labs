@@ -1,22 +1,18 @@
-//
-// Created by owl on 31.03.2020.
-//
-
 #ifndef MULTYTHREADING_LINUXPROCCESSPARALLELRUNNER_H
 #define MULTYTHREADING_LINUXPROCCESSPARALLELRUNNER_H
 
 #include <vector>
 #include <cstdint>
 #include "Callable.h"
-#include "AbstractParallelRunner.h"
+#include "AbstractTemplatedParallelRunner.h"
 #include <sys/wait.h>
 #include <unistd.h>
-
+#include <tr1/memory>
 
 using kill_signature = std::function<void ()>;
 
 
-class LinuxSignalHandler: public AbstractSignalHandler{
+class LinuxSignalHandler: public AbstractSystemInterrupter{
 private:
     kill_signature _kill_except;
 public:
@@ -27,13 +23,12 @@ public:
 };
 
 
-class LinuxProcess: public AbstractParallel{
+class LinuxProcess: public AbstractConcurrencyUnit{
 protected:
     bool running = false;
     uint16_t inner_uid = 0;
 public:
     unsigned long pid = 0;
-    AbstractCallable * executable;
     explicit LinuxProcess(AbstractCallable *);
     void set_pid() override;  // receive pid from getpid method
     unsigned long get_pid() const override; // getter for private pid field
@@ -45,7 +40,7 @@ public:
 };
 
 template <typename AbstractHandler>
-class LinuxProccessParallelRunner: public AbstractParallelRunner<LinuxProcess>{
+class LinuxProccessParallelRunner: public AbstractTemplatedParallelRunner<LinuxProcess>{
 private:
     void forker(unsigned long nprocesses) {
         pid_t pid;
@@ -104,14 +99,14 @@ public:
         }
     }
 
-    AbstractSignalHandler * get_signal_handler(AbstractParallel * process){
+    std::shared_ptr<AbstractSystemInterrupter> get_signal_handler(AbstractConcurrencyUnit * process){
         static_assert(
-                std::is_base_of<AbstractSignalHandler, AbstractHandler>::value,
+                std::is_base_of<AbstractSystemInterrupter, AbstractHandler>::value,
                 "AbstractHandler template arg must derive "
-                "from AbstractSignalHandler");
-        auto handler = new AbstractHandler(
-                std::bind(&LinuxProccessParallelRunner::kill_except, this, process->get_inner_uid(), SIGKILL)
-        );
+                "from AbstractSystemInterrupter");
+        auto handler = std::shared_ptr<AbstractSystemInterrupter>(new AbstractHandler(
+                std::bind(&LinuxProccessParallelRunner::kill_except, this, process->get_inner_uid(), SIGINT)
+        ));
         return handler;
     };
 };

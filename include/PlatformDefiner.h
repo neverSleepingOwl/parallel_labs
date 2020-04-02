@@ -1,49 +1,32 @@
-//
-// Created by owl on 31.03.2020.
-//
-
-
 #ifndef MULTYTHREADING_PLATFORMDEFINER_H
 #define MULTYTHREADING_PLATFORMDEFINER_H
 
-
-#if defined(_WIN32)
-#define PLATFORM_NAME "windows" // Windows
-#elif defined(_WIN64)
-#define PLATFORM_NAME "windows" // Windows
-#elif defined(__CYGWIN__) && !defined(_WIN32)
-#define PLATFORM_NAME "windows" // Windows (Cygwin POSIX under Microsoft Window)
-#elif defined(__ANDROID__)
-#define PLATFORM_NAME "android" // Android (implies Linux, so it must come first)
-#elif defined(__linux__)
-#define PLATFORM_NAME "linux" // Debian, Ubuntu, Gentoo, Fedora, openSUSE, RedHat, Centos and other
-#elif defined(__unix__) || !defined(__APPLE__) && defined(__MACH__)
-#include <sys/param.h>
-    #if defined(BSD)
-        #define PLATFORM_NAME "bsd" // FreeBSD, NetBSD, OpenBSD, DragonFly BSD
-    #endif
-#elif defined(__hpux)
-    #define PLATFORM_NAME "hp-ux" // HP-UX
-#elif defined(_AIX)
-    #define PLATFORM_NAME "aix" // IBM AIX
-#elif defined(__APPLE__) && defined(__MACH__) // Apple OSX and iOS (Darwin)
-    #include <TargetConditionals.h>
-    #if TARGET_IPHONE_SIMULATOR == 1
-        #define PLATFORM_NAME "ios" // Apple iOS
-    #elif TARGET_OS_IPHONE == 1
-        #define PLATFORM_NAME "ios" // Apple iOS
-    #elif TARGET_OS_MAC == 1
-        #define PLATFORM_NAME "osx" // Apple OSX
-    #endif
-#elif defined(__sun) && defined(__SVR4)
-    #define PLATFORM_NAME "solaris" // Oracle Solaris, Open Indiana
-#else
-    #define PLATFORM_NAME NULL
+#define windows 0
+#define unix 1
+#ifdef _WIN32
+    #define PLATFORM_CODE windows
+#elif defined __unix__
+    #define PLATFORM_CODE unix
+#elif defined __APPLE__
+    #define PLATFORM_CODE unix
 #endif
 
 
-class PlatformDefiner{
-};
+
+#if defined(PLATFORM_CODE)
+    #if PLATFORM_CODE == windows
+        #include <iostream>
+        int i(){
+            std::cout<<"1"<<std::endl;
+        }
+    #elif PLATFORM_CODE == unix
+        #include <iostream>
+        int i(){
+            std::cout<<"2"<<std::endl;
+            return 0;
+        }
+    #endif
+#endif
 
 
 #endif //MULTYTHREADING_PLATFORMDEFINER_H

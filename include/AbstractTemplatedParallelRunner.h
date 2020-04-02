@@ -2,16 +2,18 @@
 // Created by owl on 31.03.2020.
 //
 
-#ifndef MULTYTHREADING_ABSTRACTPARALLELRUNNER_H
-#define MULTYTHREADING_ABSTRACTPARALLELRUNNER_H
+#ifndef MULTYTHREADING_ABSTRACTTEMPLATEDPARALLELRUNNER_H
+#define MULTYTHREADING_ABSTRACTTEMPLATEDPARALLELRUNNER_H
 
 #include <string>
 #include "Callable.h"
 #include <vector>
+#include <tr1/memory>
 
 
-class AbstractParallel{
+class AbstractConcurrencyUnit{
 public:
+    AbstractCallable * executable = nullptr;
     virtual void set_pid() = 0;  // receive pid from getpid method
     virtual unsigned long get_pid() const = 0; // getter for private pid field
     virtual void set_running(bool _running) = 0; // set process _running
@@ -20,17 +22,24 @@ public:
     virtual uint16_t get_inner_uid() const = 0;
 };
 
+class AbstractParallelRunner{
+public:
+    virtual void run() = 0;
+    virtual void add(AbstractCallable * func) = 0;
+    virtual void kill_except(uint16_t inner_process_id, int signal) = 0;
+    virtual AbstractSystemInterrupter * get_signal_handler(AbstractConcurrencyUnit * ) = 0;
+};
 
 template <typename T>
-class AbstractParallelRunner {
+class AbstractTemplatedParallelRunner {
 protected:
     std::vector<T> _proccesses;
 public:
     virtual void run() = 0;
     void add(AbstractCallable * func){
-        static_assert(std::is_base_of<AbstractParallel, T>::value,
+        static_assert(std::is_base_of<AbstractConcurrencyUnit, T>::value,
                       "AbstractHandler template arg must derive "
-                      "from AbstractSignalHandler");
+                      "from AbstractSystemInterrupter");
         T process = T(func);
         process.set_inner_uid(this->_proccesses.size());
         auto handler = this->get_signal_handler(&process);
@@ -38,7 +47,18 @@ public:
         this->_proccesses.push_back(process);
     };
     virtual void kill_except(uint16_t inner_process_id, int signal) = 0;
-    virtual AbstractSignalHandler * get_signal_handler(AbstractParallel * ) = 0;
+
+    virtual std::shared_ptr<AbstractSystemInterrupter> get_signal_handler(AbstractConcurrencyUnit *) = 0;
+
+    ~AbstractTemplatedParallelRunner(){
+        std::cout<<"Deleting AbstractTemplatedParallelRunner instance."<<std::endl;
+        while(this->_proccesses.size() > 0){
+            std::cout<<"Deleting AbstractTemplatedParallelRunner. a"<<std::endl;
+            auto item = this->_proccesses.back();
+            this->_proccesses.pop_back();
+            delete item.executable;
+        }
+    }
 };
 
-#endif //MULTYTHREADING_ABSTRACTPARALLELRUNNER_H
+#endif //MULTYTHREADING_ABSTRACTTEMPLATEDPARALLELRUNNER_H

@@ -31,7 +31,7 @@ namespace string_caster{
 
     // CHECK IF FUNCTION CAN BE EITHER CAST TO STRING OR STREAM
     template <typename T>
-    constexpr bool can_cast_to_string = has_ostringstream<T> && has_std_tostring<T>;
+    constexpr bool can_cast_to_string = has_ostringstream<T> || has_std_tostring<T>;
     // END CHECK IF FUNCTION CAN BE EITHER CAST TO STRING OR STREAM
 
     // Different implementations of templates for
