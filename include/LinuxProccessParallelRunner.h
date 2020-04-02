@@ -12,11 +12,11 @@
 using kill_signature = std::function<void ()>;
 
 
-class LinuxSignalHandler: public AbstractSystemInterrupter{
+class LinuxSignalSystemInterrupter: public AbstractSystemInterrupter{
 private:
     kill_signature _kill_except;
 public:
-    explicit LinuxSignalHandler(kill_signature);
+    explicit LinuxSignalSystemInterrupter(kill_signature);
     void handle_success() override ;
     void handle_error() override ;
     bool check_next_sync_call() override ;
@@ -36,7 +36,6 @@ public:
     bool get_running() const override;  // getter for running field
     void set_inner_uid(uint16_t inner_uid) override;
     uint16_t get_inner_uid() const override;
-//    ~LinuxProcess();
 };
 
 template <typename AbstractHandler>

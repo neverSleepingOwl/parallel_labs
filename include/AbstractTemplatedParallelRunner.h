@@ -27,7 +27,7 @@ public:
     virtual void run() = 0;
     virtual void add(AbstractCallable * func) = 0;
     virtual void kill_except(uint16_t inner_process_id, int signal) = 0;
-    virtual AbstractSystemInterrupter * get_signal_handler(AbstractConcurrencyUnit * ) = 0;
+    virtual std::shared_ptr<AbstractSystemInterrupter> get_signal_handler(AbstractConcurrencyUnit *) = 0;
 };
 
 template <typename T>

@@ -31,18 +31,18 @@ uint16_t LinuxProcess::get_inner_uid() const {
     return this->inner_uid;
 }
 
-void LinuxSignalHandler::handle_success() {
+void LinuxSignalSystemInterrupter::handle_success() {
     this->_kill_except();
 }
 
-void LinuxSignalHandler::handle_error() {
+void LinuxSignalSystemInterrupter::handle_error() {
     std::cerr<<"Error occured, couldn't finish process"<<std::endl;
 }
 
-LinuxSignalHandler::LinuxSignalHandler(kill_signature kill_method) {
+LinuxSignalSystemInterrupter::LinuxSignalSystemInterrupter(kill_signature kill_method) {
     this->_kill_except =  std::move(kill_method);
 }
 
-bool LinuxSignalHandler::check_next_sync_call() {
+bool LinuxSignalSystemInterrupter::check_next_sync_call() {
     return true;
 }
