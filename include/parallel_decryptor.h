@@ -9,6 +9,15 @@
 
 
 namespace parrallel_decryptor{
+    // Namespace for helpers
+    // which create MultpleCallable
+    // with sequent callables list for each process/thread
+
+    // result which stores decrypted string and key
+    // since we want to check
+    // if decrypted string matches
+    // expected
+    // and we want to get key, with which string was encrypted
     struct decryption_result{
         std::string result;
         uint32_t key;

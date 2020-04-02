@@ -1,0 +1,14 @@
+//
+// Created by owl on 02.04.2020.
+//
+
+#ifndef MULTYTHREADING_OPENMPPARALLELRUNNER_H
+#define MULTYTHREADING_OPENMPPARALLELRUNNER_H
+
+
+class OpenMpParallelRunner {
+
+};
+
+
+#endif //MULTYTHREADING_OPENMPPARALLELRUNNER_H
