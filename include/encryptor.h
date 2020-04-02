@@ -1,0 +1,8 @@
+//
+// Created by owl on 02.04.2020.
+//
+
+#ifndef MULTYTHREADING_ENCRYPTOR_H
+#define MULTYTHREADING_ENCRYPTOR_H
+
+#endif //MULTYTHREADING_ENCRYPTOR_H

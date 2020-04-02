@@ -20,6 +20,7 @@ public:
     virtual uint16_t get_inner_uid() const = 0;
 };
 
+
 template <typename T>
 class AbstractParallelRunner {
 protected:
