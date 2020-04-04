@@ -13,7 +13,7 @@ using kill_signature = std::function<void ()>;
 
 
 class LinuxSignalSystemInterrupter: public AbstractSystemInterrupter{
-private:
+protected:
     kill_signature _kill_except;
 public:
     explicit LinuxSignalSystemInterrupter(kill_signature);

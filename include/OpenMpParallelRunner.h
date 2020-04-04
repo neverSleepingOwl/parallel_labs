@@ -21,22 +21,11 @@ public:
     bool check_next_sync_call() override {return true;};
 };
 
-class OpenMpThread: public AbstractConcurrencyUnit{
-protected:
-    bool running = false;
-    uint16_t inner_uid = 0;
+class OpenMpThread: public BaseThread{
 public:
-    unsigned long pid = 0;
-    explicit OpenMpThread(AbstractCallable * callable){
-        this->executable = callable;
-    };
-    void set_pid() override {this->pid = 0;};  // receive pid from getpid method
-    unsigned long get_pid() const override{return 0;}; // getter for private pid field
-    void set_running(bool _running) override {this->running = _running;}; // set process _running
-    bool get_running() const override {return this->running;};  // getter for running field
-    void set_inner_uid(uint16_t _inner_uid) override {this->inner_uid = _inner_uid;};
-    uint16_t get_inner_uid() const override {return this->inner_uid;};
+    explicit OpenMpThread(AbstractCallable * callable):BaseThread(callable){}
 };
+
 
 class OpenMpParallelRunner: public AbstractTemplatedParallelRunner<OpenMpThread>{
 public:

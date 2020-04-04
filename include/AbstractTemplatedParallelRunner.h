@@ -22,6 +22,24 @@ public:
     virtual uint16_t get_inner_uid() const = 0;
 };
 
+class BaseThread: public AbstractConcurrencyUnit{
+protected:
+    bool running = false;
+    uint16_t inner_uid = 0;
+public:
+    unsigned long pid = 0;
+    explicit BaseThread(AbstractCallable * callable){
+        this->executable = callable;
+    };
+    void set_pid() override {this->pid = 0;};  // receive pid from getpid method
+    unsigned long get_pid() const override{return 0;}; // getter for private pid field
+    void set_running(bool _running) override {this->running = _running;}; // set process _running
+    bool get_running() const override {return this->running;};  // getter for running field
+    void set_inner_uid(uint16_t _inner_uid) override {this->inner_uid = _inner_uid;};
+    uint16_t get_inner_uid() const override {return this->inner_uid;};
+};
+
+
 class AbstractParallelRunner{
 public:
     virtual void run() = 0;

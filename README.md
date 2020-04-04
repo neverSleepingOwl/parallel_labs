@@ -64,3 +64,21 @@ Run:
 ```shell script
 sudo apt-get install libomp-dev
 ```
+
+### OpenMPI and boost mpi installation
+We need to install boost mpi library to work with mpi and openmpi binary to run openmpi program.
+
+```shell script
+sudo apt-get install -y openmpi-bin
+sudo apt-get install libboost-all-dev
+sudo apt install libopenmpi-dev
+```
+
+
+## Sanitizing addresses
+For more comfortable address sanitizing and debug we include address sanitizer in CMakeLists.txt,
+We will need llvm support to get addresses to more quickly find errors.
+```shell script
+sudo apt-get install llvm
+```
+

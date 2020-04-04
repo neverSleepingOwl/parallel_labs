@@ -15,6 +15,7 @@
 
 class AbstractCallable{
 public:
+    bool should_call_sighandler = true;
     virtual void run() = 0;
     virtual std::string to_string() const = 0;
     virtual bool has_result() const = 0;
@@ -87,6 +88,7 @@ public:
 
     void add_single_callable(AbstractCallable * runner) {
         runner->set_sig_handler(this->_sighandler);
+        runner->should_call_sighandler = false;
         this->_callables.push_back(runner);
     }
 
@@ -176,7 +178,9 @@ class Callable: public AbstractCallable{
             this->_finished = true;
             if(this->_result_checker(this->_result)){
                 this->_has_result = true;
-                this->_sighandler->handle_success();
+                if (this->should_call_sighandler){
+                    this->_sighandler->handle_success();
+                }
             }
         }
 
