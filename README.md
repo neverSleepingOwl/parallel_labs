@@ -5,10 +5,11 @@ Also there is small example of usage and helper classes, using which we can brut
 symmetrical encryption algorithm.
 Bruteforce checks if decrypted result for key in given range matches string passed to encrypt
 ## Included parallelism implementations
-* Linux fork with kill by signal stop option, shared memory check stop option and socket server stop option
+* Linux fork with kill by signal to process group stop option, shared memory check stop option and socket server stop option
 * Linux libpthread with kill by `pthread_cancel` stop option, shared memory check stop option and socket server stop option
 * OpenMp 
 * Mpi with broadcast stop option and point-to-point communication stop option
+
 
 ## Custom Callable
 This repo also contains custom templated wrapper around executable `Callable.h`.

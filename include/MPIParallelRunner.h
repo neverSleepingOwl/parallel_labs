@@ -34,7 +34,6 @@ public:
     void handle_success() override{
         const auto size = this->_world->size();
         for (int i = 0; i < size; i++){
-            std::cout<<"sending signal to proc "<<i<<std::endl;
             auto to_send = std::string("stop");
             this->_world->send<std::string>(i, 0, to_send);
         }
@@ -49,9 +48,7 @@ public:
             this->responding = true;
         }
         if (resp.test()){
-            std::cout<<"stopping process2"<<std::endl;
             if (msg == "stop"){
-                std::cout<<"stopping process"<<std::endl;
                 return false;
             }
         }

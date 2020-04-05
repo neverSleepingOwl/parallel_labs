@@ -49,7 +49,7 @@ public:
 };
 
 template <typename T>
-class AbstractTemplatedParallelRunner {
+class AbstractTemplatedParallelRunner: public AbstractParallelRunner{
 protected:
     std::vector<T> _proccesses;
 public:
