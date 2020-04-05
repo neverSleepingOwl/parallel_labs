@@ -5,9 +5,10 @@ Also there is small example of usage and helper classes, using which we can brut
 symmetrical encryption algorithm.
 Bruteforce checks if decrypted result for key in given range matches string passed to encrypt
 ## Included parallelism implementations
-* Linux fork
-* Linux libpthread
-* OpenMp
+* Linux fork with kill by signal stop option, shared memory check stop option and socket server stop option
+* Linux libpthread with kill by `pthread_cancel` stop option, shared memory check stop option and socket server stop option
+* OpenMp 
+* Mpi with broadcast stop option and point-to-point communication stop option
 
 ## Custom Callable
 This repo also contains custom templated wrapper around executable `Callable.h`.
@@ -16,6 +17,8 @@ or add callables to execute them in one parallel entity (thread)/process.
 Custom `Callable` or `MultipleCallable` can be passed to `AbstractParallelRunner` `add` method
 to add them to execution, which is invoked with `run()` method.
 Result of each `Callable`/`MultipleCallable` is written to stdout. 
+Also there is MapCallable, which is much like callable, except it takes generator (shared pointer to AbstractArgsGenerator),
+which has two methods: `next` and `has_next`, and yields tuple of function args.
 
 **NOTE**: function, passed to `Callable` constructor must have return value **convertable to string**,
 so you should define `to_string` method, or `<<` operator with `std::ostringstream` return value

@@ -41,11 +41,16 @@ public:
 template <typename AbstractHandler>
 class LinuxProccessParallelRunner: public AbstractTemplatedParallelRunner<LinuxProcess>{
 private:
+    static void sighandler(int signal){
+        std::cout<<signal<<std::endl;
+        wait(NULL);
+    }
     void forker(unsigned long nprocesses) {
         pid_t pid;
         std::cout<<nprocesses<<std::endl;
         if(nprocesses >= 0)
         {
+            std::cout<<nprocesses<<std::endl;
             if ((pid = fork()) < 0)
             {
                 std::cerr<<"Invalid forking"<<std::endl;
@@ -64,7 +69,6 @@ private:
             }
             else if(pid > 0 && nprocesses != 0)
             {
-                std::cout<<nprocesses;
                 forker(nprocesses - 1);
             }
         }
@@ -77,9 +81,7 @@ public:
 
     void run() override {
         unsigned long size = this->_proccesses.size() - 1;
-        std::cout<<size<<std::endl;
         if ((size) < 1000) { // this check to avoid DOS
-            std::cout<<this->_proccesses.size()<<std::endl;
             this->forker(size);
             int status = 0;
             for (int i = this->_proccesses.size(); i > 0; --i){
@@ -88,14 +90,10 @@ public:
         }
     }
 
-    void kill_except(uint16_t inner_process_id, int signal) override {
+    void kill_except(uint16_t inner_process_id, int _signal) override {
         // kill all processes except given one
-        for (auto i = 0; i < this->_proccesses.size(); ++i){
-            auto process = this->_proccesses[i];
-            if (i != inner_process_id && process.get_running()) {
-                kill(process.get_pid(), signal);
-            }
-        }
+        signal(_signal, SIG_IGN);
+        killpg(getpgid(getpid()), _signal);
     }
 
     std::shared_ptr<AbstractSystemInterrupter> get_signal_handler(AbstractConcurrencyUnit * process){

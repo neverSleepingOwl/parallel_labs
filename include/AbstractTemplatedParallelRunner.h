@@ -54,7 +54,7 @@ protected:
     std::vector<T> _proccesses;
 public:
     virtual void run() = 0;
-    void add(AbstractCallable * func){
+    virtual void add(AbstractCallable * func) {
         static_assert(std::is_base_of<AbstractConcurrencyUnit, T>::value,
                       "AbstractHandler template arg must derive "
                       "from AbstractSystemInterrupter");
