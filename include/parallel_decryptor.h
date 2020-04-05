@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "modernize-avoid-bind"
 #ifndef MULTYTHREADING_PARALLEL_DECRYPTOR_H
 #define MULTYTHREADING_PARALLEL_DECRYPTOR_H
 #include <vector>
@@ -49,11 +51,11 @@ namespace parrallel_decryptor{
 
 
     std::vector<MultipleCallable *> prepare_functions(
-            uint32_t range_begin,
-            uint32_t range_end,
-            uint16_t num_threads,
-            std::string _expected,
-            std::vector<uint8_t> & encrypted
+        uint32_t range_begin,
+        uint32_t range_end,
+        uint16_t num_threads,
+        std::string _expected,
+        std::vector<uint8_t> & encrypted
     ){
         expected = _expected;
         const auto range_size = range_end - range_begin;
@@ -73,5 +75,51 @@ namespace parrallel_decryptor{
         }
         return vec;
     }
+
+    using argtype_t = std::tuple<uint32_t, std::vector<uint8_t>>;
+
+
+    class DecryptorSequence: public AbstractArgsGenerator<uint32_t, std::vector<uint8_t>>{
+        int i, j;
+        int step;
+        int range_end;
+        std::vector<uint8_t > encrypted_vector;
+    public:
+        DecryptorSequence(int _i, int _step, int _range_end, std::vector<uint8_t > & _encrypted_vector):
+            i(_i), step(_step), range_end(_range_end), encrypted_vector(_encrypted_vector), j(0){};
+        argtype_t next() override{
+            uint32_t key = i * step + j;
+            j++;
+            return argtype_t(key, encrypted_vector);
+        }
+
+        bool has_next() override{
+            uint32_t key = i * step + j;
+            return key <= range_end && j <= step;
+        }
+    };
+
+
+    std::vector<AbstractCallable *>  prepare_mapped_functions(
+        uint32_t range_begin,
+        uint32_t range_end,
+        uint16_t num_threads,
+        std::string _expected,
+        std::vector<uint8_t> & encrypted
+    ){
+        expected = _expected;
+        const auto range_size = range_end - range_begin;
+        const div_t div_res = div(range_size, num_threads);
+        const auto step = div_res.quot + ((div_res.rem == 0)?0:1);
+        auto output = std::vector<AbstractCallable *>();
+        for(auto i = 0; i < num_threads; i++) {
+            auto seq = std::make_shared<DecryptorSequence>(i, step, range_end, encrypted);
+            AbstractCallable * call = new MapCallable<decryption_result, uint32_t, std::vector<uint8_t >>(success, decrypt_with_key, seq);
+            output.push_back(call);
+        }
+        return output;
+    }
 }
 #endif //MULTYTHREADING_PARALLEL_DECRYPTOR_H
+
+#pragma clang diagnostic pop
