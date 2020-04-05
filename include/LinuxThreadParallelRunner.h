@@ -5,6 +5,8 @@
 #include <tr1/memory>
 #include "AbstractTemplatedParallelRunner.h"
 #include "LinuxProccessParallelRunner.h"
+#include "signal.h"
+
 
 class LinuxThread: public LinuxProcess{
 public:
@@ -13,7 +15,11 @@ public:
 };
 
 
-
+void terminate_handler(){
+    // Since c++ 11 pthread_cancel with no cancelation point throws terminate
+    std::cout<<"Program finished!!!"<<std::endl;
+    exit(0);
+}
 template <typename AbstractHandler>
 class LinuxThreadParallelRunner: public AbstractTemplatedParallelRunner<LinuxThread>{
 // Multythreading in linux using libpthread
@@ -32,6 +38,8 @@ public:
         // wrapper with pthread thread callback signature
         // to pass to pthread_create
         // runs, checks and prints result
+        std::set_terminate(terminate_handler);
+        pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, nullptr);
         LinuxThread * thread = static_cast<LinuxThread *>(data);
         thread->set_running(true);
         thread->executable->run();
@@ -49,6 +57,7 @@ public:
             // OS hangs
             for (int i = 0; i < this->_proccesses.size(); i++){
                 // create threads with pids and set their inner ids
+                std::cout<<this->_proccesses[i].pid<<std::endl;
                 int code = pthread_create((pthread_t *)&this->_proccesses[i].pid, NULL, LinuxThreadParallelRunner::run_single, (void *)&this->_proccesses[i]);
                 std::cout<<"creating thread"<<this->_proccesses[i].pid<<"inner id"<<this->_proccesses[i].get_inner_uid()<<std::endl;
             }
@@ -63,10 +72,12 @@ public:
 
     void kill_except(uint16_t inner_process_id, int signal) override {
         // kill all threads except given one
+        // Since c++ 11 throws terminate
         for (auto i = 0; i < this->_proccesses.size(); ++i){
             auto thread = this->_proccesses[i];
             if (i != inner_process_id && thread.get_running()) {
                 // if thread is not running we shouldn't kill it
+                std::cout<<thread.pid<<std::endl;
                 pthread_cancel((pthread_t)thread.pid);
                 thread.set_running(false);
             }
@@ -78,9 +89,6 @@ public:
                 std::is_base_of<AbstractSystemInterrupter, AbstractHandler>::value,
                 "AbstractHandler template arg must derive "
                 "from AbstractSystemInterrupter");
-//        auto handler = std::shared_ptr<AbstractSystemInterrupter>(std::make_shared<AbstractHandler>(
-//                std::bind(&LinuxThreadParallelRunner::kill_except, this, process->get_inner_uid(), SIGTERM)
-//        ));
         auto handler = std::shared_ptr<AbstractSystemInterrupter>(new AbstractHandler(
                 std::bind(&LinuxThreadParallelRunner::kill_except, this, process->get_inner_uid(), SIGTERM)
         ));
