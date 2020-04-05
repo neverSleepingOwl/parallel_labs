@@ -21,6 +21,13 @@ class MpiPointToPointSystemInterrupter: public MpiSystemInterrupter{
 // either via point-to-point communication
 // or via broadcast communication
 // so here's point to point
+private:
+    // We run recv for non blocking
+    // request only once, and than
+    // after each iteration
+    // we check non-blocking response result
+    boost::mpi::request resp;
+    bool responding = false;
 public:
     explicit MpiPointToPointSystemInterrupter(boost::mpi::communicator * world): MpiSystemInterrupter(world){
     }
@@ -29,14 +36,18 @@ public:
         for (int i = 0; i < size; i++){
             std::cout<<"sending signal to proc "<<i<<std::endl;
             auto to_send = std::string("stop");
-            this->_world->isend<std::string>(i, 0, to_send);
+            this->_world->send<std::string>(i, 0, to_send);
         }
     };
+
     void handle_error() override {};
     bool check_next_sync_call() override {
         const auto size = this->_world->size();
         std::string msg;
-        boost::mpi::request resp = this->_world->irecv<std::string>(this->_world->rank(), 0, msg);
+        if (!this->responding) {
+            this->resp = this->_world->irecv<std::string>(boost::mpi::any_source, boost::mpi::any_tag, msg);
+            this->responding = true;
+        }
         if (resp.test()){
             std::cout<<"stopping process2"<<std::endl;
             if (msg == "stop"){
