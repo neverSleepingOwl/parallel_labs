@@ -61,6 +61,9 @@ public:
 
 
 class MpiBroadcastSystemInterrupter: public MpiSystemInterrupter{
+private:
+    boost::mpi::request resp;
+    bool responding = false;
 public:
     static std::string finished;
     explicit MpiBroadcastSystemInterrupter(boost::mpi::communicator * world): MpiSystemInterrupter(world){
@@ -71,9 +74,16 @@ public:
     };
     void handle_error() override {};
     bool check_next_sync_call() override {
-        if (MpiBroadcastSystemInterrupter::finished == "finished"){
-            std::cout<<"stopping process"<<std::endl;
-            return false;
+        const auto size = this->_world->size();
+        std::string msg;
+        if (!this->responding) {
+            this->resp = this->_world->irecv<std::string>(boost::mpi::any_source, boost::mpi::any_tag, msg);
+            this->responding = true;
+        }
+        if (resp.test()){
+            if (msg == "finished"){
+                return false;
+            }
         }
         return true;
     };
