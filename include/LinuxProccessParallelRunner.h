@@ -63,7 +63,7 @@
                         if (proc.executable->has_result()) {
                             std::string result = proc.executable->to_string();
                             std::cout<<"Result: \""<<result<<"\" in process "<<proc.get_inner_uid()<<
-                            " (pid: "<<"\""<<getpid()<<"\""<<";"<<std::endl;
+                            " (pid: "<<"\""<<getpid()<<"\""<<");"<<std::endl;
                         }
                         exit(0);
                     }
