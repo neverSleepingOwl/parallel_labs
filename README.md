@@ -86,3 +86,6 @@ We will need llvm support to get addresses to more quickly find errors.
 sudo apt-get install llvm
 ```
 
+## **NOTE:** 
+Address sanitizer can break some of functionality, especially related to process kill/pthread_cancel magic.
+So it would be better to compile without using it.

@@ -1,8 +1,5 @@
 #ifndef MULTYTHREADING_ABSTRACTSIGHANDLER_H
 #define MULTYTHREADING_ABSTRACTSIGHANDLER_H
-
-#endif //MULTYTHREADING_ABSTRACTSIGHANDLER_H
-
 class AbstractSystemInterrupter{
 /*
  * Base class for all thread finished handlers
@@ -33,3 +30,5 @@ public:
     // false for finished
     virtual bool check_next_sync_call()  = 0;
 };
+#endif //MULTYTHREADING_ABSTRACTSIGHANDLER_H
+

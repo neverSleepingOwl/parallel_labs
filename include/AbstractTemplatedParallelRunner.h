@@ -69,9 +69,7 @@ public:
     virtual std::shared_ptr<AbstractSystemInterrupter> get_signal_handler(AbstractConcurrencyUnit *) = 0;
 
     ~AbstractTemplatedParallelRunner(){
-        std::cout<<"Deleting AbstractTemplatedParallelRunner instance."<<std::endl;
         while(this->_proccesses.size() > 0){
-            std::cout<<"Deleting AbstractTemplatedParallelRunner. a"<<std::endl;
             auto item = this->_proccesses.back();
             this->_proccesses.pop_back();
             delete item.executable;

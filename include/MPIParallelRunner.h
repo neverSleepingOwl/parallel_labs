@@ -122,12 +122,9 @@ public:
         // than world->size
         // so we need to put several processes
         // on each MPI thread
-        std::cout<<"Starting run method"<<std::endl;
         const auto size = this->world->size();
-        std::cout<<size<<std::endl;
         for (int i = 0; i < size; i++){
             if (world->rank() == i){
-                std::cout<<world->rank()<<std::endl;
                 int counter = i;
                 while (counter < this->_proccesses.size()){
                     auto runner = this->_proccesses[counter];
@@ -135,7 +132,6 @@ public:
                     runner.set_inner_uid(world->rank());
                     runner.executable->run();
                     runner.set_running(false);
-                    std::cout<<"Result: \""<<"thr finished"<<"\" in thread "<<runner.get_inner_uid()<<";"<<std::endl;
                     if ( runner.executable->has_result()) {
                         std::string result =  runner.executable->to_string();
                         std::cout<<"Result: \""<<result<<"\" in thread "<<runner.get_inner_uid()<<";"<<std::endl;

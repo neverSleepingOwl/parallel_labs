@@ -16,6 +16,7 @@ const std::string mpi_process = "mpi_process";
 const std::string openmp = "openmp";
 const std::string signal_interrupter = "signal";
 const std::string cancel_interrupter = "cancel";
+const std::string socket_interrupter = "socket";
 const std::string mpi_point_to_point_interrupter = "mpip2p";
 const std::string mpi_broadcast_interrupter = "mpibroadcast";
 
@@ -26,16 +27,20 @@ const std::string mpi_broadcast_interrupter = "mpibroadcast";
         #include "LinuxThreadParallelRunner.h"
         #include "OpenMpParallelRunner.h"
         #include "MPIParallelRunner.h"
-
+        #include "SocketServerSystemInterrupter.h"
         boost::optional<std::shared_ptr<AbstractParallelRunner>> get_runner(std::string  name, std::string  interrupter){
             boost::optional<std::shared_ptr<AbstractParallelRunner>> ptr;
             if (name == process){
                 if (interrupter == signal_interrupter) {
                     ptr = std::make_shared<LinuxProccessParallelRunner<LinuxSignalSystemInterrupter>>();
+                }else if(interrupter == socket_interrupter){
+                    ptr = std::make_shared<LinuxProccessParallelRunner<SocketServerSystemInterrupter>>();
                 }
             }else if(name == thread){
                 if (interrupter == cancel_interrupter) {
                     ptr =  std::make_shared<LinuxThreadParallelRunner<LinuxSignalSystemInterrupter>>();
+                }else if(interrupter == socket_interrupter){
+                    ptr = std::make_shared<LinuxThreadParallelRunner<SocketServerSystemInterrupter>>();
                 }
             }else if (name == openmp){
                 ptr = std::make_shared<OpenMpParallelRunner>();

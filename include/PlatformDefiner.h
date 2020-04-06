@@ -16,13 +16,13 @@
 #if defined(PLATFORM_CODE)
     #if PLATFORM_CODE == windows
         #include <iostream>
-        int i(){
-            std::cout<<"1"<<std::endl;
+        inline int print_platform(){
+            std::cout<<"windows"<<std::endl;
         }
     #elif PLATFORM_CODE == unix
         #include <iostream>
-        int i(){
-            std::cout<<"2"<<std::endl;
+        inline int print_platform(){
+            std::cout<<"unix"<<std::endl;
             return 0;
         }
     #endif

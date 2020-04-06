@@ -102,7 +102,6 @@ public:
     }
 
     ~MultipleCallable() override{
-        std::cout<<"DESTRUCTOR CALLED"<<std::endl;
         while(this->_callables.size() > 0){
             auto item = this->_callables.back();
             this->_callables.pop_back();
@@ -278,7 +277,6 @@ public:
                     if(this->_result_checker(this->_result)){
                         this->_has_result = true;
                         if (this->should_call_sighandler){
-                            std::cout<<"calling"<<std::endl;
                             this->_sighandler->handle_success();
                             break;
                         }

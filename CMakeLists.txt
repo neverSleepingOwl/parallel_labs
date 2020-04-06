@@ -19,24 +19,27 @@ if (OPENMP_FOUND)
 endif()
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME OFF)
+set(Boost_USE_STATIC_RUNTIME ON)
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-
 find_package(MPI)
 find_package(Boost 1.65.1 COMPONENTS mpi)
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 
 ## use this only for mpi??
 
 SET(CMAKE_C_COMPILER mpicc)
 SET(CMAKE_CXX_COMPILER mpicxx)
 
+#add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 
-add_executable(multythreading main.cpp include/PlatformDefiner.h include/Callable.h include/AbstractSystemInterrupter.h include/to_string_helper.h include/AbstractTemplatedParallelRunner.h sources/LinuxProccessParallelRunner.cpp include/LinuxProccessParallelRunner.h include/twofish.h sources/twofish.cpp include/LinuxThreadParallelRunner.h sources/encryptor.cpp include/encryptor.h include/AbstractProcessFactory.h include/parallel_decryptor.h include/OpenMpParallelRunner.h include/MPIParallelRunner.h)
+add_executable(multythreading main.cpp include/PlatformDefiner.h include/Callable.h include/AbstractSystemInterrupter.h include/to_string_helper.h include/AbstractTemplatedParallelRunner.h sources/LinuxProccessParallelRunner.cpp include/LinuxProccessParallelRunner.h include/twofish.h sources/twofish.cpp include/LinuxThreadParallelRunner.h sources/encryptor.cpp include/encryptor.h include/AbstractProcessFactory.h include/parallel_decryptor.h include/OpenMpParallelRunner.h include/MPIParallelRunner.h include/SocketServerSystemInterrupter.h include/tcp_server.h sources/SharedMemorySystemInterrupter.cpp include/SharedMemorySystemInterrupter.h)
 
 
 target_link_libraries(multythreading ${PTHREAD_LIBRARY})
 target_link_libraries(multythreading ${MPI_C_LIBRARIES})
 if(Boost_FOUND)
+
     target_link_libraries(multythreading ${Boost_LIBRARIES})
 endif()
